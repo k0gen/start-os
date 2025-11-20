@@ -52,9 +52,23 @@ jobs:
               "aarch64": ["aarch64"],
               "riscv64": ["riscv64"],
               "ALL": ["x86_64", "aarch64", "riscv64"]
-            }')[github.event.inputs.platform || 'ALL']
+            }')[github.event.inputs.arch || 'ALL']
           }}
-    runs-on: ${{ fromJson('["ubuntu-latest", "buildjet-32vcpu-ubuntu-2204"]')[github.event.inputs.runner == 'fast'] }}
+    runs-on: >-
+      ${{
+        fromJson('{
+          "standard": {
+            "x86_64": "ubuntu-latest",
+            "aarch64": "ubuntu-latest-arm64",
+            "riscv64": "ubuntu-latest-arm64"
+          },
+          "fast": {
+            "x86_64": "buildjet-32vcpu-ubuntu-2204",
+            "aarch64": "buildjet-32vcpu-ubuntu-2204-arm",
+            "riscv64": "buildjet-32vcpu-ubuntu-2204-arm"
+          }
+        }')[github.event.inputs.runner || 'standard'][matrix.arch]
+      }}
     steps:
       - name: Cleaning up unnecessary files
         run: |
